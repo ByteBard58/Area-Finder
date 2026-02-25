@@ -62,6 +62,7 @@ h1 {
     margin-bottom: 0.5rem;
     background: linear-gradient(to right, #60a5fa, #a78bfa);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
@@ -420,12 +421,66 @@ footer a:hover {
 }
 
 /* Responsive adjustments */
-@media (max-width: 480px) {
+@media (max-width: 600px) {
     .container {
         padding: 1rem;
     }
     
+    h1 {
+        font-size: 2rem;
+    }
+
+    .glass-panel {
+        padding: 1.25rem;
+    }
+
+    .controls-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .vertex-list {
+        gap: 0.75rem;
+    }
+
+    .vertex-row {
+        gap: 0.5rem;
+        padding: 0.5rem;
+    }
+
+    .input-group input {
+        font-size: 0.875rem;
+        padding: 0.4rem;
+    }
+
+    .vertex-index {
+        width: 20px;
+        height: 20px;
+        font-size: 0.65rem;
+    }
+    
+    .icon-btn {
+        width: 28px;
+        height: 28px;
+        font-size: 1.25rem;
+    }
+
     .actions {
         flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .primary-btn, .secondary-btn {
+        width: 100%;
+        padding: 0.875rem 1rem;
+    }
+
+    .result-container {
+        padding: 1rem;
+    }
+
+    .result-value {
+        font-size: 1.5rem;
     }
 }
