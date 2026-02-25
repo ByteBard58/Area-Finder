@@ -26,6 +26,10 @@
                     <span class="toggle-label">Auto-Order Vertices</span>
                 </div>
             </div>
+            
+            <div id="auto-order-warning" class="warning-message hidden">
+                <strong>Warning:</strong> The Auto-Order feature is experimental. It orders vertices based on the centroid and may not work properly for concave polygons. Use with caution!
+            </div>
 
             <div id="vertex-list" class="vertex-list">
                 <!-- Vertices will be injected here via JS -->
@@ -42,6 +46,13 @@
                 <div id="result-message" class="result-message"></div>
             </div>
         </main>
+        
+        <footer>
+            <p>
+                This project is licensed under the <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener noreferrer">MIT License</a>.<br>
+                Source code available on <a href="https://github.com/ByteBard58/Area-Finder" target="_blank" rel="noopener noreferrer">GitHub</a>.
+            </p>
+        </footer>
     </div>
 
     <script>
@@ -55,10 +66,21 @@
         const addVertexBtn = document.getElementById('add-vertex');
         const calculateBtn = document.getElementById('calculate-btn');
         const assumeUnorderedToggle = document.getElementById('assume-unordered');
+        const autoOrderWarning = document.getElementById('auto-order-warning');
         const resultContainer = document.getElementById('result-container');
         const resultValue = document.getElementById('result-value');
         const resultMessage = document.getElementById('result-message');
         
+        assumeUnorderedToggle.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                autoOrderWarning.classList.remove('hidden');
+                autoOrderWarning.classList.add('slide-down');
+            } else {
+                autoOrderWarning.classList.add('hidden');
+                autoOrderWarning.classList.remove('slide-down');
+            }
+        });
+
         function renderVertices() {
             vertexListEl.innerHTML = '';
             vertices.forEach((vertex, index) => {
@@ -67,10 +89,10 @@
                 row.innerHTML = `
                     <div class="vertex-index">${index + 1}</div>
                     <div class="input-group">
-                        <input type="number" step="any" placeholder="X" value="${vertex.x}" onchange="updateVertex(${index}, 'x', this.value)" required>
+                        <input type="number" step="any" placeholder="X" value="${vertex.x}" onchange="updateVertex(${index}, 'x', this.value)" onkeypress="handleKeyPress(event)" required>
                     </div>
                     <div class="input-group">
-                        <input type="number" step="any" placeholder="Y" value="${vertex.y}" onchange="updateVertex(${index}, 'y', this.value)" required>
+                        <input type="number" step="any" placeholder="Y" value="${vertex.y}" onchange="updateVertex(${index}, 'y', this.value)" onkeypress="handleKeyPress(event)" required>
                     </div>
                     <button class="btn icon-btn remove-btn" onclick="removeVertex(${index})" ${vertices.length <= 3 ? 'disabled' : ''}>
                         &times;
@@ -85,6 +107,13 @@
             });
         }
         
+        window.handleKeyPress = function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                calculateBtn.click();
+            }
+        };
+
         window.updateVertex = function(index, axis, value) {
             vertices[index][axis] = value;
         };
@@ -143,18 +172,25 @@
         function showResult(area, message) {
             resultContainer.classList.remove('hidden');
             resultContainer.classList.remove('error');
-            resultContainer.classList.add('success');
             
-            // Animate value
-            resultValue.innerText = area + ' sq units';
+            if (area === 0) {
+                resultContainer.classList.remove('success');
+                resultContainer.classList.add('warning');
+                resultValue.innerText = '0 sq units';
+            } else {
+                resultContainer.classList.remove('warning');
+                resultContainer.classList.add('success');
+                resultValue.innerText = area + ' sq units';
+            }
+            
             resultMessage.innerText = message || 'Successfully calculated area.';
-            
             resultContainer.scrollIntoView({ behavior: 'smooth', block: 'end' });
         }
         
         function showError(errorMsg) {
             resultContainer.classList.remove('hidden');
             resultContainer.classList.remove('success');
+            resultContainer.classList.remove('warning');
             resultContainer.classList.add('error');
             
             resultValue.innerText = 'Error';

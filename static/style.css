@@ -321,6 +321,11 @@ input[type="number"]::placeholder {
     border: 1px solid rgba(239, 68, 68, 0.2);
 }
 
+.result-container.warning {
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
 .result-container h3 {
     font-size: 0.875rem;
     text-transform: uppercase;
@@ -343,9 +348,75 @@ input[type="number"]::placeholder {
     color: var(--error-color);
 }
 
+.warning .result-value {
+    color: #f59e0b;
+}
+
 .result-message {
     font-size: 0.875rem;
     color: var(--text-secondary);
+}
+
+/* Warning Message */
+.warning-message {
+    background: rgba(245, 158, 11, 0.1);
+    border-left: 4px solid #f59e0b;
+    color: #fbcfe8; /* Soft color for text */
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    line-height: 1.4;
+    transition: all 0.3s ease;
+}
+
+.warning-message strong {
+    color: #fbbf24;
+}
+
+.warning-message.hidden {
+    display: none;
+    opacity: 0;
+}
+
+.warning-message.slide-down {
+    animation: slideDownFade 0.3s ease forwards;
+}
+
+@keyframes slideDownFade {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Footer Styles */
+footer {
+    text-align: center;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+footer p {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    line-height: 1.6;
+}
+
+footer a {
+    color: var(--accent-color);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+footer a:hover {
+    color: var(--accent-hover);
+    text-decoration: underline;
 }
 
 /* Responsive adjustments */
