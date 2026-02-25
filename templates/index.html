@@ -49,7 +49,7 @@
         
         <footer>
             <p>
-                This project is licensed under the <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener noreferrer">MIT License</a>.<br>
+                This project is licensed under the <a href="https://github.com/ByteBard58/Area-Finder/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">MIT License</a>.<br>
                 Source code available on <a href="https://github.com/ByteBard58/Area-Finder" target="_blank" rel="noopener noreferrer">GitHub</a>.
             </p>
         </footer>
@@ -89,10 +89,10 @@
                 row.innerHTML = `
                     <div class="vertex-index">${index + 1}</div>
                     <div class="input-group">
-                        <input type="number" step="any" placeholder="X" value="${vertex.x}" onchange="updateVertex(${index}, 'x', this.value)" onkeypress="handleKeyPress(event)" required>
+                        <input type="number" step="any" placeholder="X" value="${vertex.x}" oninput="updateVertex(${index}, 'x', this.value)" onkeypress="handleKeyPress(event)" required>
                     </div>
                     <div class="input-group">
-                        <input type="number" step="any" placeholder="Y" value="${vertex.y}" onchange="updateVertex(${index}, 'y', this.value)" onkeypress="handleKeyPress(event)" required>
+                        <input type="number" step="any" placeholder="Y" value="${vertex.y}" oninput="updateVertex(${index}, 'y', this.value)" onkeypress="handleKeyPress(event)" required>
                     </div>
                     <button class="btn icon-btn remove-btn" onclick="removeVertex(${index})" ${vertices.length <= 3 ? 'disabled' : ''}>
                         &times;
