@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polygon Area Finder</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="background-animation"></div>
+    <div class="container">
+        <header>
+            <h1>Area Finder</h1>
+            <p>Calculate the area of any polygon using the Shoelace formula.</p>
+        </header>
+
+        <main class="glass-panel">
+            <div class="controls-header">
+                <h2>Vertices</h2>
+                <div class="toggles">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="assume-unordered">
+                        <span class="slider round"></span>
+                    </label>
+                    <span class="toggle-label">Auto-Order Vertices</span>
+                </div>
+            </div>
+
+            <div id="vertex-list" class="vertex-list">
+                <!-- Vertices will be injected here via JS -->
+            </div>
+
+            <div class="actions">
+                <button id="add-vertex" class="btn secondary-btn">+ Add Vertex</button>
+                <button id="calculate-btn" class="btn primary-btn">Calculate Area</button>
+            </div>
+
+            <div id="result-container" class="result-container hidden">
+                <h3>Result</h3>
+                <div id="result-value" class="result-value">--</div>
+                <div id="result-message" class="result-message"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let vertices = [
+            { x: '', y: '' },
+            { x: '', y: '' },
+            { x: '', y: '' } // Start with 3
+        ];
+        
+        const vertexListEl = document.getElementById('vertex-list');
+        const addVertexBtn = document.getElementById('add-vertex');
+        const calculateBtn = document.getElementById('calculate-btn');
+        const assumeUnorderedToggle = document.getElementById('assume-unordered');
+        const resultContainer = document.getElementById('result-container');
+        const resultValue = document.getElementById('result-value');
+        const resultMessage = document.getElementById('result-message');
+        
+        function renderVertices() {
+            vertexListEl.innerHTML = '';
+            vertices.forEach((vertex, index) => {
+                const row = document.createElement('div');
+                row.className = 'vertex-row';
+                row.innerHTML = `
+                    <div class="vertex-index">${index + 1}</div>
+                    <div class="input-group">
+                        <input type="number" step="any" placeholder="X" value="${vertex.x}" onchange="updateVertex(${index}, 'x', this.value)" required>
+                    </div>
+                    <div class="input-group">
+                        <input type="number" step="any" placeholder="Y" value="${vertex.y}" onchange="updateVertex(${index}, 'y', this.value)" required>
+                    </div>
+                    <button class="btn icon-btn remove-btn" onclick="removeVertex(${index})" ${vertices.length <= 3 ? 'disabled' : ''}>
+                        &times;
+                    </button>
+                `;
+                vertexListEl.appendChild(row);
+                
+                // Add staggered animation
+                setTimeout(() => {
+                    row.classList.add('fade-in');
+                }, index * 50);
+            });
+        }
+        
+        window.updateVertex = function(index, axis, value) {
+            vertices[index][axis] = value;
+        };
+        
+        window.removeVertex = function(index) {
+            if (vertices.length > 3) {
+                vertices.splice(index, 1);
+                renderVertices();
+            }
+        };
+        
+        addVertexBtn.addEventListener('click', () => {
+            vertices.push({ x: '', y: '' });
+            renderVertices();
+        });
+        
+        calculateBtn.addEventListener('click', async () => {
+            // Basic validation
+            for (let i = 0; i < vertices.length; i++) {
+                if (vertices[i].x === '' || vertices[i].y === '') {
+                    showError('Please fill in all coordinates.');
+                    return;
+                }
+            }
+            
+            calculateBtn.disabled = true;
+            calculateBtn.innerText = 'Calculating...';
+            
+            try {
+                const response = await fetch('/calculate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        coordinates: vertices.map(v => ({ x: parseFloat(v.x), y: parseFloat(v.y) })),
+                        assume_unordered: assumeUnorderedToggle.checked
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showResult(data.area, data.message);
+                } else {
+                    showError(data.error);
+                }
+            } catch (error) {
+                showError('Failed to connect to the server.');
+            } finally {
+                calculateBtn.disabled = false;
+                calculateBtn.innerText = 'Calculate Area';
+            }
+        });
+        
+        function showResult(area, message) {
+            resultContainer.classList.remove('hidden');
+            resultContainer.classList.remove('error');
+            resultContainer.classList.add('success');
+            
+            // Animate value
+            resultValue.innerText = area + ' sq units';
+            resultMessage.innerText = message || 'Successfully calculated area.';
+            
+            resultContainer.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        }
+        
+        function showError(errorMsg) {
+            resultContainer.classList.remove('hidden');
+            resultContainer.classList.remove('success');
+            resultContainer.classList.add('error');
+            
+            resultValue.innerText = 'Error';
+            resultMessage.innerText = errorMsg;
+        }
+        
+        // Initial render
+        renderVertices();
+    </script>
+</body>
+</html>
