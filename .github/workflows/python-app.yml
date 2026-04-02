@@ -6,9 +6,9 @@ name: Python application
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "fast-api-integration" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "fast-api-integration" ]
 
 permissions:
   contents: read
@@ -35,9 +35,30 @@ jobs:
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-    - name: Run Flask app and test with Curl
+    - name: Run FastAPI app and test endpoints
       run: |
-        nohup python app.py &
-        sleep 6
-        curl -I http://127.0.0.1:5000
-        pkill -f "python app.py"
+        # Start uvicorn in background
+        python -m uvicorn app.app:app --host 127.0.0.1 --port 8000 > /tmp/uvicorn.log 2>&1 &
+        UVICORN_PID=$!
+        sleep 5
+        
+        # Test root endpoint
+        echo "Testing GET /"
+        curl -f -s http://127.0.0.1:8000/ > /dev/null || (cat /tmp/uvicorn.log && exit 1)
+        
+        # Test health endpoint
+        echo "Testing GET /health"
+        curl -f -s http://127.0.0.1:8000/health > /dev/null || (cat /tmp/uvicorn.log && exit 1)
+        
+        # Test calculate endpoint
+        echo "Testing POST /calculate"
+        curl -f -s -X POST http://127.0.0.1:8000/calculate \
+          -H "Content-Type: application/json" \
+          -d '{"coord_list":[[0,0],[4,0],[4,3]],"assume_unordered":false}' > /tmp/response.json
+        
+        # Verify response contains success
+        grep -q "success" /tmp/response.json || (cat /tmp/response.json && cat /tmp/uvicorn.log && exit 1)
+        
+        # Cleanup
+        kill $UVICORN_PID 2>/dev/null || true
+        sleep 1
