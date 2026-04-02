@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Polygon Area Finder</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="/static/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -149,17 +149,18 @@
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        coordinates: vertices.map(v => ({ x: parseFloat(v.x), y: parseFloat(v.y) })),
+                        coord_list: vertices.map(v => [parseFloat(v.x), parseFloat(v.y)]),
                         assume_unordered: assumeUnorderedToggle.checked
                     })
                 });
-                
+
                 const data = await response.json();
-                
-                if (data.success) {
-                    showResult(data.area, data.message);
+
+                if (response.ok && (data.success || data.result_in_square_units !== undefined || data.area !== undefined)) {
+                    const areaValue = data.result_in_square_units ?? data.area;
+                    showResult(areaValue, data.message ?? 'Successfully calculated area.');
                 } else {
-                    showError(data.error);
+                    showError(data.detail ?? data.message ?? 'Unable to calculate area.');
                 }
             } catch (error) {
                 showError('Failed to connect to the server.');
