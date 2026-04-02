@@ -35,9 +35,13 @@ jobs:
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-    - name: Run Flask app and test with Curl
+    - name: Run FastAPI app and test endpoints
       run: |
-        nohup python app.py &
-        sleep 6
-        curl -I http://127.0.0.1:5000
-        pkill -f "python app.py"
+        nohup python -m uvicorn app.app:app --host 127.0.0.1 --port 8000 &
+        sleep 4
+        curl -I http://127.0.0.1:8000/
+        curl -s http://127.0.0.1:8000/health | grep -q "Area Finder API is alive"
+        curl -X POST http://127.0.0.1:8000/calculate \
+          -H "Content-Type: application/json" \
+          -d '{"coord_list":[[0,0],[4,0],[4,3]],"assume_unordered":false}' | grep -q "success"
+        pkill -f "uvicorn app.app:app"
