@@ -1,6 +1,6 @@
 # 📐 Area Finder
 
-Area Finder is a specialized tool designed to calculate the area of any polygon using the **Shoelace Formula** (also known as Gauss's Area Formula). It provides both a convenient Command Line Interface (CLI) and a modern, intuitive Web Interface built with Flask.
+Area Finder is a specialized tool designed to calculate the area of any polygon using the **Shoelace Formula** (also known as Gauss's Area Formula). It provides both a convenient Command Line Interface (CLI) and a modern, intuitive Web Interface built with FastAPI.
 
 ## ✨ Features
 
@@ -54,13 +54,13 @@ Follow the prompts to:
 
 ### Web Application
 
-Launch the Flask server to access the GUI:
+Launch the FastAPI server to access the GUI:
 
 ```bash
-python app.py
+uvicorn app.app:app --reload
 ```
 
-Once running, navigate to `http://127.0.0.1:5000` in your web browser.
+Once running, navigate to `http://127.0.0.1:8000` in your web browser.
 
 ## 🧪 How it Works
 
